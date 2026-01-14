@@ -1,12 +1,15 @@
 import { useState, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useTheme } from '@/hooks/useTheme';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import ResumeUpload from '@/components/onboarding/ResumeUpload';
 import AIProcessing from '@/components/onboarding/AIProcessing';
 import CorrectionVerification from '@/components/onboarding/CorrectionVerification';
 import ConfirmationSuccess from '@/components/onboarding/ConfirmationSuccess';
 import ManualEntryForm from '@/components/onboarding/ManualEntryForm';
+import ThemePreference from '@/components/onboarding/ThemePreference';
 
-type OnboardingStep = 'upload' | 'processing' | 'verification' | 'manual' | 'success';
+type OnboardingStep = 'theme' | 'upload' | 'processing' | 'verification' | 'manual' | 'success';
 
 const mockExtractedData = {
   fullName: 'Sarah Johnson',
@@ -21,11 +24,13 @@ const mockExtractedData = {
 };
 
 const Index = () => {
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('upload');
+  const { hasPreference, setHasPreference, setTheme } = useTheme();
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(hasPreference ? 'upload' : 'theme');
   const [confirmedData, setConfirmedData] = useState<{ name: string; stage: string } | null>(null);
 
   const getStepIndex = (step: OnboardingStep): number => {
     const stepMap: Record<OnboardingStep, number> = {
+      theme: -1,
       upload: 0,
       processing: 0,
       manual: 0,
@@ -34,6 +39,12 @@ const Index = () => {
     };
     return stepMap[step];
   };
+
+  const handleThemeSelect = useCallback((theme: 'light' | 'dark' | 'system') => {
+    setTheme(theme);
+    setHasPreference(true);
+    setCurrentStep('upload');
+  }, [setTheme, setHasPreference]);
 
   const handleUpload = useCallback((file: File) => {
     console.log('File uploaded:', file.name);
@@ -65,6 +76,23 @@ const Index = () => {
   }, []);
 
   const stepLabels = ['Upload Resume', 'Verify Details', 'Complete'];
+
+  // Show theme preference screen first
+  if (currentStep === 'theme') {
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="theme"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.4 }}
+        >
+          <ThemePreference onSelect={handleThemeSelect} />
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
 
   const renderStep = () => {
     switch (currentStep) {
