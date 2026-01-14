@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode, useEffect, useState } from 'react';
 import logo from '@/assets/logo.png';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface OnboardingLayoutProps {
   children: ReactNode;
@@ -50,7 +51,7 @@ const OnboardingLayout = ({ children, currentStep, totalSteps, stepLabels }: Onb
               <p className="text-xs text-muted-foreground">Career Vision Board</p>
             </div>
           </motion.div>
-          
+
           {/* Step Indicator - Desktop */}
           <div className="hidden md:flex items-center gap-2">
             {stepLabels.map((label, index) => (
@@ -117,6 +118,9 @@ const OnboardingLayout = ({ children, currentStep, totalSteps, stepLabels }: Onb
               Step {currentStep + 1} of {totalSteps}
             </span>
           </div>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
         </div>
 
         {/* Mobile Progress Bar */}
