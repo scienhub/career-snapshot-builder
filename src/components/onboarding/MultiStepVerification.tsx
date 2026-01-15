@@ -469,17 +469,17 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
     }
   };
 
-  const canProceed = () => {
+  const canProceed = (): boolean => {
     switch (step.id) {
       case 'resume-review':
       case 'personal-info':
-        return formData.candidateFoundation.fullName && formData.candidateFoundation.email;
+        return Boolean(formData.candidateFoundation.fullName && formData.candidateFoundation.email);
       case 'career-status':
-        return formData.candidateFoundation.careerStage && formData.candidateFoundation.professionalStatus;
+        return Boolean(formData.candidateFoundation.careerStage && formData.candidateFoundation.professionalStatus);
       case 'career-vision':
         return formData.careerVision.tenYearVision.length > 10;
       case 'career-milestones':
-        return formData.careerMilestones.targetRole3Years;
+        return Boolean(formData.careerMilestones.targetRole3Years);
       case 'final-preferences':
         return formData.finalPreferences.consentGranted === true;
       default:

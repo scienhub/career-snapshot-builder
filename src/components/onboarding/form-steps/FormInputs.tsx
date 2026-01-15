@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, Sparkles, User } from 'lucide-react';
-import { useState } from 'react';
+import { Check, ChevronDown, Sparkles, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 
 interface TextInputProps {
   label: string;
@@ -75,11 +75,17 @@ export const TextInput = ({
   );
 };
 
+interface SelectOption {
+  value: string;
+  label: string;
+  description?: string;
+}
+
 interface SelectInputProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  options: { value: string; label: string; description?: string }[];
+  options: SelectOption[];
   placeholder?: string;
   required?: boolean;
 }
@@ -92,6 +98,20 @@ export const SelectInput = ({
   placeholder = 'Select an option',
   required,
 }: SelectInputProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const selectedOption = options.find(opt => opt.value === value);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <motion.div 
       className="space-y-2"
@@ -103,20 +123,58 @@ export const SelectInput = ({
         {required && <span className="text-destructive">*</span>}
       </label>
       
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="input-premium appearance-none cursor-pointer pr-10"
+      <div className="relative" ref={dropdownRef}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="input-premium w-full text-left flex items-center justify-between cursor-pointer hover:border-primary/50 transition-colors"
         >
-          <option value="">{placeholder}</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+          <span className={selectedOption ? 'text-foreground' : 'text-muted-foreground'}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+          </motion.div>
+        </button>
+        
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="absolute z-50 w-full mt-2 py-2 bg-popover border border-border rounded-xl shadow-xl max-h-60 overflow-auto"
+            >
+              {options.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center justify-between ${
+                    value === option.value ? 'bg-accent' : ''
+                  }`}
+                >
+                  <div>
+                    <p className="font-medium text-foreground">{option.label}</p>
+                    {option.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{option.description}</p>
+                    )}
+                  </div>
+                  {value === option.value && (
+                    <Check className="w-4 h-4 text-primary" />
+                  )}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -234,7 +292,7 @@ export const MultiSelectChips = ({
               key={option.value}
               type="button"
               onClick={() => toggleOption(option.value)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                 isSelected
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-secondary/50 text-foreground hover:bg-secondary border border-border'
@@ -243,6 +301,7 @@ export const MultiSelectChips = ({
               whileTap={{ scale: 0.98 }}
             >
               {option.label}
+              {isSelected && <X className="w-3 h-3" />}
             </motion.button>
           );
         })}
@@ -280,14 +339,30 @@ export const SliderInput = ({
       </div>
       
       <div className="space-y-2">
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={value}
-          onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer slider-thumb"
-        />
+        {/* Custom slider track */}
+        <div className="relative pt-1">
+          <div className="h-2 bg-secondary rounded-full">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${((value - min) / (max - min)) * 100}%` }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            value={value}
+            onChange={(e) => onChange(parseInt(e.target.value))}
+            className="absolute inset-0 w-full h-2 opacity-0 cursor-pointer"
+          />
+          {/* Slider thumb indicator */}
+          <motion.div
+            className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-primary rounded-full shadow-lg border-2 border-white pointer-events-none"
+            style={{ left: `calc(${((value - min) / (max - min)) * 100}% - 10px)` }}
+          />
+        </div>
         
         {labels && (
           <div className="flex justify-between text-xs text-muted-foreground">
@@ -355,6 +430,7 @@ export const BooleanToggle = ({
           whileTap={{ scale: 0.99 }}
         >
           <div className="flex items-center justify-center gap-2">
+            <X className={`w-5 h-5 ${value === false ? 'text-primary' : 'text-muted-foreground'}`} />
             <span className={`font-medium ${value === false ? 'text-primary' : 'text-foreground'}`}>No</span>
           </div>
         </motion.button>

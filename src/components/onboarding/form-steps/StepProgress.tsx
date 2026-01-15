@@ -1,11 +1,25 @@
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { Check, Target, Rocket, TrendingUp, Lightbulb } from 'lucide-react';
 import { FORM_STEPS, FormStepId } from '@/types/onboarding';
 
 interface StepProgressProps {
   currentStepIndex: number;
   completedSteps: Set<FormStepId>;
 }
+
+const sectionIcons: Record<string, React.ElementType> = {
+  'Foundation': Target,
+  'Vision': Rocket,
+  'Skills': Lightbulb,
+  'Reality': TrendingUp,
+  'Purpose': Target,
+  'Identity': Target,
+  'Style': Target,
+  'Preferences': Target,
+  'Future': Rocket,
+  'Final': Check,
+  'Complete': Check,
+};
 
 const StepProgress = ({ currentStepIndex, completedSteps }: StepProgressProps) => {
   // Group steps by section
@@ -18,6 +32,18 @@ const StepProgress = ({ currentStepIndex, completedSteps }: StepProgressProps) =
   }, {} as Record<string, Array<typeof FORM_STEPS[0] & { index: number }>>);
 
   const sectionNames = Object.keys(sections);
+
+  const getEncouragementMessage = () => {
+    if (currentStepIndex < 5) {
+      return "Great start! Every detail helps build your personalized growth path.";
+    } else if (currentStepIndex < 12) {
+      return "You're doing great! Your profile is taking shape.";
+    } else if (currentStepIndex < 18) {
+      return "Almost there! Your Growth Charter is nearly complete.";
+    } else {
+      return "Final stretch! Your personalized score awaits.";
+    }
+  };
 
   return (
     <div className="hidden lg:block w-64 flex-shrink-0">
@@ -49,6 +75,7 @@ const StepProgress = ({ currentStepIndex, completedSteps }: StepProgressProps) =
               const lastStepIndex = sectionSteps[sectionSteps.length - 1].index;
               const isActive = currentStepIndex >= firstStepIndex && currentStepIndex <= lastStepIndex;
               const isComplete = currentStepIndex > lastStepIndex;
+              const SectionIcon = sectionIcons[sectionName] || Target;
 
               return (
                 <motion.div
@@ -70,10 +97,10 @@ const StepProgress = ({ currentStepIndex, completedSteps }: StepProgressProps) =
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     ) : (
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs font-medium ${
-                        isActive ? 'border-primary text-primary' : 'border-muted-foreground/30 text-muted-foreground'
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isActive ? 'border-primary bg-primary/10' : 'border-muted-foreground/30'
                       }`}>
-                        {sectionIndex + 1}
+                        <SectionIcon className={`w-3 h-3 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                       </div>
                     )}
                     <span className={`text-sm font-medium ${
@@ -118,15 +145,14 @@ const StepProgress = ({ currentStepIndex, completedSteps }: StepProgressProps) =
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <p className="text-sm text-muted-foreground">
-            {currentStepIndex < 5 
-              ? "🎯 Great start! Every detail helps build your personalized growth path."
-              : currentStepIndex < 12
-                ? "💪 You're doing great! Your profile is taking shape."
-                : currentStepIndex < 18
-                  ? "🚀 Almost there! Your Growth Charter is nearly complete."
-                  : "✨ Final stretch! Your personalized score awaits."}
-          </p>
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Lightbulb className="w-4 h-4 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {getEncouragementMessage()}
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>
