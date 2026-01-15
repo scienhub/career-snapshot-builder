@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
-import { Lightbulb, TrendingUp, Target, ArrowRight, Brain, Sparkles, ChevronLeft, ChevronRight, Pause, Play, X } from 'lucide-react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import { TrendingUp, Target, ArrowRight, Brain, Sparkles, ChevronLeft, ChevronRight, Pause, Play, Lightbulb, Rocket } from 'lucide-react';
 
 interface InsightItem {
   id: string;
@@ -8,9 +8,7 @@ interface InsightItem {
   title: string;
   description: string;
   actionLabel: string;
-  priority: 'high' | 'medium' | 'low';
   gradient: string;
-  bgImage?: string;
 }
 
 const insights: InsightItem[] = [
@@ -18,36 +16,32 @@ const insights: InsightItem[] = [
     id: '1',
     icon: <Brain className="w-6 h-6" />,
     title: 'Skill Gap Detected',
-    description: 'Your Data Analytics skill is trending in your industry. Adding it to your growth plan could boost your GC Score by 5 points.',
+    description: 'Your Data Analytics skill is trending. Adding it could boost your GC Score by 5 points.',
     actionLabel: 'Add to Plan',
-    priority: 'high',
     gradient: 'from-violet-600 via-purple-600 to-indigo-700'
   },
   {
     id: '2',
     icon: <Target className="w-6 h-6" />,
     title: 'Goal Alignment',
-    description: 'Your current progress aligns perfectly with your 3-year career target. Keep the momentum going!',
+    description: 'Your progress aligns perfectly with your 3-year career target. Keep going!',
     actionLabel: 'View Details',
-    priority: 'medium',
     gradient: 'from-emerald-600 via-teal-600 to-cyan-700'
   },
   {
     id: '3',
-    icon: <TrendingUp className="w-6 h-6" />,
+    icon: <Rocket className="w-6 h-6" />,
     title: 'Growth Opportunity',
-    description: 'Projects in AI/ML are gaining traction. Your profile shows strong potential for this direction.',
+    description: 'AI/ML projects are gaining traction. Your profile shows strong potential here.',
     actionLabel: 'Explore',
-    priority: 'low',
     gradient: 'from-orange-600 via-amber-600 to-yellow-600'
   },
   {
     id: '4',
     icon: <Sparkles className="w-6 h-6" />,
     title: 'Weekly Milestone',
-    description: 'You\'re on track to hit your weekly learning goal. Just 2 more hours to complete!',
+    description: "You're on track for your weekly learning goal. Just 2 more hours to complete!",
     actionLabel: 'Continue',
-    priority: 'medium',
     gradient: 'from-rose-600 via-pink-600 to-fuchsia-700'
   }
 ];
@@ -55,13 +49,10 @@ const insights: InsightItem[] = [
 export const MicroInsights = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const x = useMotionValue(0);
-  const opacity = useTransform(x, [-100, 0, 100], [0.5, 1, 0.5]);
 
   useEffect(() => {
-    if (isAutoPlaying && !isExpanded) {
+    if (isAutoPlaying) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % insights.length);
       }, 5000);
@@ -69,7 +60,7 @@ export const MicroInsights = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isAutoPlaying, isExpanded]);
+  }, [isAutoPlaying]);
 
   const handleDragEnd = (_: any, info: PanInfo) => {
     if (info.offset.x < -50) {
@@ -88,17 +79,17 @@ export const MicroInsights = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.7, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 0.5, delay: 0.7 }}
       className="relative w-full"
     >
-      {/* Story-like Container */}
-      <div className="relative overflow-hidden rounded-2xl">
+      {/* Container with rounded corners */}
+      <div className="relative overflow-hidden rounded-2xl shadow-xl">
         {/* Progress Bars */}
-        <div className="absolute top-0 left-0 right-0 z-20 flex gap-1 p-3">
+        <div className="absolute top-0 left-0 right-0 z-20 flex gap-1.5 p-4">
           {insights.map((_, index) => (
-            <div key={index} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
+            <div key={index} className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-white"
+                className="h-full bg-white rounded-full"
                 initial={{ width: index < currentIndex ? '100%' : '0%' }}
                 animate={{ 
                   width: index < currentIndex ? '100%' : index === currentIndex ? '100%' : '0%'
@@ -112,37 +103,25 @@ export const MicroInsights = () => {
           ))}
         </div>
 
-        {/* Main Story Card */}
+        {/* Main Card */}
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.1}
           onDragEnd={handleDragEnd}
-          style={{ x, opacity }}
-          className={`relative h-48 md:h-56 cursor-grab active:cursor-grabbing bg-gradient-to-br ${currentInsight.gradient}`}
+          className={`relative h-52 sm:h-48 cursor-grab active:cursor-grabbing bg-gradient-to-br ${currentInsight.gradient}`}
         >
-          {/* Decorative Elements */}
+          {/* Animated background */}
           <div className="absolute inset-0 overflow-hidden">
             <motion.div
-              animate={{ 
-                rotate: 360,
-                scale: [1, 1.2, 1]
-              }}
-              transition={{ 
-                rotate: { duration: 20, repeat: Infinity, ease: 'linear' },
-                scale: { duration: 4, repeat: Infinity }
-              }}
-              className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+              animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+              transition={{ rotate: { duration: 20, repeat: Infinity, ease: 'linear' }, scale: { duration: 4, repeat: Infinity } }}
+              className="absolute -top-24 -right-24 w-72 h-72 bg-white/10 rounded-full blur-3xl"
             />
             <motion.div
-              animate={{ 
-                rotate: -360,
-                scale: [1.2, 1, 1.2]
-              }}
-              transition={{ 
-                rotate: { duration: 25, repeat: Infinity, ease: 'linear' },
-                scale: { duration: 5, repeat: Infinity }
-              }}
-              className="absolute -bottom-20 -left-20 w-48 h-48 bg-white/5 rounded-full blur-2xl"
+              animate={{ rotate: -360, scale: [1.2, 1, 1.2] }}
+              transition={{ rotate: { duration: 25, repeat: Infinity, ease: 'linear' }, scale: { duration: 5, repeat: Infinity } }}
+              className="absolute -bottom-24 -left-24 w-56 h-56 bg-white/5 rounded-full blur-2xl"
             />
           </div>
 
@@ -154,48 +133,44 @@ export const MicroInsights = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="relative z-10 h-full flex flex-col justify-between p-6"
+              className="relative z-10 h-full flex flex-col justify-between p-5 sm:p-6"
             >
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <motion.div 
-                    className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white"
+                    className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center text-white border border-white/10"
                     animate={{ rotate: [0, 5, -5, 0] }}
                     transition={{ duration: 3, repeat: Infinity }}
                   >
                     {currentInsight.icon}
                   </motion.div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="flex items-center gap-1 px-2 py-0.5 bg-white/20 text-white rounded-full text-xs font-medium backdrop-blur-sm"
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        AI Insight
-                      </motion.div>
-                    </div>
-                    <h3 className="text-xl font-bold text-white mt-1">{currentInsight.title}</h3>
+                    <motion.div
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-white/15 text-white rounded-full text-xs font-semibold backdrop-blur-sm border border-white/10 w-fit mb-1"
+                    >
+                      <Lightbulb className="w-3 h-3" />
+                      AI Insight
+                    </motion.div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">{currentInsight.title}</h3>
                   </div>
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white"
-                  >
-                    {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  </motion.button>
-                </div>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white border border-white/10 hover:bg-white/25 transition-colors"
+                >
+                  {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </motion.button>
               </div>
 
               {/* Description */}
-              <p className="text-white/90 text-sm md:text-base leading-relaxed max-w-lg">
+              <p className="text-white/90 text-sm leading-relaxed max-w-xl">
                 {currentInsight.description}
               </p>
 
@@ -206,7 +181,7 @@ export const MicroInsights = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={goToPrev}
-                    className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors border border-white/10"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </motion.button>
@@ -214,15 +189,29 @@ export const MicroInsights = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={goToNext}
-                    className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors border border-white/10"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </motion.button>
                 </div>
 
+                {/* Dots */}
+                <div className="flex gap-1.5 items-center">
+                  {insights.map((_, index) => (
+                    <motion.button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`rounded-full transition-all duration-300 ${
+                        index === currentIndex ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/40 hover:bg-white/60'
+                      }`}
+                      whileHover={{ scale: 1.2 }}
+                    />
+                  ))}
+                </div>
+
                 <motion.button
-                  whileHover={{ scale: 1.05, x: 5 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.03, x: 3 }}
+                  whileTap={{ scale: 0.97 }}
                   className="flex items-center gap-2 px-5 py-2.5 bg-white text-gray-900 rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-shadow"
                 >
                   {currentInsight.actionLabel}
@@ -232,20 +221,6 @@ export const MicroInsights = () => {
             </motion.div>
           </AnimatePresence>
         </motion.div>
-
-        {/* Dot Indicators */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
-          {insights.map((_, index) => (
-            <motion.button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'
-              }`}
-              whileHover={{ scale: 1.2 }}
-            />
-          ))}
-        </div>
       </div>
     </motion.div>
   );
