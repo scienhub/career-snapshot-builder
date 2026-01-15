@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GCScoreBreakdown } from '@/types/onboarding';
 import { DashboardNavbar } from '@/components/dashboard/DashboardNavbar';
 import { GCScoreCard } from '@/components/dashboard/GCScoreCard';
-import { MomentumStrip } from '@/components/dashboard/MomentumStrip';
 import { NextActionCard } from '@/components/dashboard/NextActionCard';
 import { ProgressMap } from '@/components/dashboard/ProgressMap';
 import { ProofSnapshot } from '@/components/dashboard/ProofSnapshot';
@@ -53,7 +52,7 @@ const Dashboard = ({ userData }: DashboardProps) => {
       />
 
       <main className="flex-1 overflow-auto pb-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (
               <motion.div
@@ -64,23 +63,23 @@ const Dashboard = ({ userData }: DashboardProps) => {
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className="space-y-6"
               >
-                {/* GC Score Card */}
+                {/* Next Action Card - Premium CTA */}
+                <NextActionCard userName={defaultData.name} />
+
+                {/* GC Score with 1:2 Grid Layout */}
                 <GCScoreCard score={defaultData.gcScore} />
                 
-                {/* Momentum Strip */}
-                <MomentumStrip />
-                
-                {/* Next Action Card */}
-                <NextActionCard userName={defaultData.name} />
-                
-                {/* Progress Map */}
+                {/* Growth Path Section */}
                 <ProgressMap />
                 
-                {/* Micro Insights - Full Width Story Style */}
-                <MicroInsights />
-                
-                {/* Community Highlights */}
-                <CommunityHighlights />
+                {/* Two Column Layout - Insights & Community */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Micro Insights */}
+                  <MicroInsights />
+                  
+                  {/* Community Highlights */}
+                  <CommunityHighlights />
+                </div>
                 
                 {/* Proof Snapshot */}
                 <ProofSnapshot />
