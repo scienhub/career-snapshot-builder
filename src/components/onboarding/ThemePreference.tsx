@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { Sun, Moon, Monitor, Sparkles } from 'lucide-react';
+import { Sun, Moon, Sparkles } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 interface ThemePreferenceProps {
-  onSelect: (theme: 'light' | 'dark' | 'system') => void;
+  onSelect: (theme: 'light' | 'dark') => void;
 }
 
 const ThemePreference = ({ onSelect }: ThemePreferenceProps) => {
@@ -26,15 +26,6 @@ const ThemePreference = ({ onSelect }: ThemePreferenceProps) => {
       iconColor: 'text-blue-400',
       preview: 'bg-slate-900',
     },
-    {
-      id: 'system' as const,
-      name: 'System Default',
-      description: 'Automatically match your device',
-      icon: Monitor,
-      gradient: 'from-slate-200 to-slate-300',
-      iconColor: 'text-slate-600',
-      preview: 'bg-gradient-to-r from-white to-slate-900',
-    },
   ];
 
   return (
@@ -54,7 +45,7 @@ const ThemePreference = ({ onSelect }: ThemePreferenceProps) => {
       </div>
 
       <motion.div
-        className="w-full max-w-2xl"
+        className="w-full max-w-xl"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -98,13 +89,13 @@ const ThemePreference = ({ onSelect }: ThemePreferenceProps) => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            Before we begin, choose your preferred visual experience
+            Choose your preferred visual experience
           </motion.p>
         </motion.div>
 
         {/* Theme Options */}
         <motion.div
-          className="grid md:grid-cols-3 gap-4"
+          className="grid md:grid-cols-2 gap-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
@@ -117,22 +108,22 @@ const ThemePreference = ({ onSelect }: ThemePreferenceProps) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + index * 0.1, duration: 0.5 }}
-              whileHover={{ y: -4 }}
+              whileHover={{ y: -6, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="card-premium p-6 h-full transition-all duration-300 group-hover:shadow-xl group-hover:border-primary/30">
+              <div className="card-premium p-8 h-full transition-all duration-300 group-hover:shadow-xl group-hover:border-primary/40">
                 {/* Preview Window */}
-                <div className={`w-full h-24 rounded-xl mb-4 ${theme.preview} border border-border/50 flex items-center justify-center overflow-hidden`}>
-                  <div className={`w-3/4 h-16 rounded-lg bg-gradient-to-br ${theme.gradient} flex items-center justify-center`}>
-                    <theme.icon className={`w-8 h-8 ${theme.iconColor}`} />
+                <div className={`w-full h-32 rounded-xl mb-6 ${theme.preview} border border-border/50 flex items-center justify-center overflow-hidden shadow-inner`}>
+                  <div className={`w-3/4 h-20 rounded-lg bg-gradient-to-br ${theme.gradient} flex items-center justify-center`}>
+                    <theme.icon className={`w-10 h-10 ${theme.iconColor}`} />
                   </div>
                 </div>
                 
                 {/* Label */}
-                <h3 className="font-semibold text-foreground mb-1 text-left">
+                <h3 className="font-semibold text-lg text-foreground mb-2 text-center">
                   {theme.name}
                 </h3>
-                <p className="text-sm text-muted-foreground text-left">
+                <p className="text-sm text-muted-foreground text-center">
                   {theme.description}
                 </p>
 
@@ -150,7 +141,7 @@ const ThemePreference = ({ onSelect }: ThemePreferenceProps) => {
           className="text-center text-sm text-muted-foreground mt-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
+          transition={{ delay: 1 }}
         >
           You can change this anytime from the header
         </motion.p>
