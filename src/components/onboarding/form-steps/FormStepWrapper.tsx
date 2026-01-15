@@ -14,6 +14,7 @@ interface FormStepWrapperProps {
   isLastStep?: boolean;
   showSkip?: boolean;
   onSkip?: () => void;
+  isExtracted?: boolean;
 }
 
 const FormStepWrapper = ({
@@ -27,6 +28,7 @@ const FormStepWrapper = ({
   isLastStep = false,
   showSkip = false,
   onSkip,
+  isExtracted = false,
 }: FormStepWrapperProps) => {
   const step = FORM_STEPS[stepIndex];
   const totalSteps = FORM_STEPS.length;

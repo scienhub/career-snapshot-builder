@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CompleteFormData, ExtractedResumeData, FORM_STEPS, getDefaultFormData } from '@/types/onboarding';
 import { calculateGCScore } from '@/utils/gcScoreCalculator';
 import FormStepWrapper from './form-steps/FormStepWrapper';
 import StepProgress from './form-steps/StepProgress';
+import IconStepProgress from './form-steps/IconStepProgress';
+import SectionTransition from './form-steps/SectionTransition';
 import GCScoreSummary from './form-steps/GCScoreSummary';
 import { TextInput, SelectInput, OptionCard, MultiSelectChips, SliderInput, BooleanToggle } from './form-steps/FormInputs';
 
@@ -15,6 +17,9 @@ interface MultiStepVerificationProps {
 
 const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepVerificationProps) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [showSectionTransition, setShowSectionTransition] = useState(false);
+  const [transitionFromSection, setTransitionFromSection] = useState('');
+  const [transitionToSection, setTransitionToSection] = useState('');
   const [formData, setFormData] = useState<CompleteFormData>(() => {
     const defaults = getDefaultFormData();
     if (extractedData) {
@@ -90,6 +95,13 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
     }));
   };
 
+  const updateWorkIdentity = (field: keyof CompleteFormData['workIdentity'], value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      workIdentity: { ...prev.workIdentity, [field]: value }
+    }));
+  };
+
   const updateWorkStyle = (field: keyof CompleteFormData['workStyle'], value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -132,22 +144,77 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
     }));
   };
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
-  const prevStep = () => currentStep === 0 ? onBack() : setCurrentStep(prev => prev - 1);
-
   const step = FORM_STEPS[currentStep];
+  const nextStepData = FORM_STEPS[currentStep + 1];
+
+  // Check if moving to next section
+  const isLastStepOfSection = nextStepData && step.section !== nextStepData.section;
+
+  const getCompletedSectionsCount = () => {
+    const sections = ['Foundation', 'Vision', 'Skills', 'Reality', 'Purpose', 'Identity', 'Style', 'Preferences', 'Future', 'Final'];
+    const currentSectionIndex = sections.indexOf(step.section);
+    return currentSectionIndex;
+  };
+
+  const nextStep = () => {
+    if (isLastStepOfSection && !showSectionTransition) {
+      setTransitionFromSection(step.section);
+      setTransitionToSection(nextStepData.section);
+      setShowSectionTransition(true);
+    } else {
+      setShowSectionTransition(false);
+      setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
+    }
+  };
+
+  const prevStep = () => {
+    if (showSectionTransition) {
+      setShowSectionTransition(false);
+    } else if (currentStep === 0) {
+      onBack();
+    } else {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleTransitionContinue = () => {
+    setShowSectionTransition(false);
+    setCurrentStep(prev => prev + 1);
+  };
 
   // Show score summary on last step
   if (step.id === 'score-summary') {
     const score = calculateGCScore(formData);
     return (
-      <div className="flex gap-8">
-        <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="hidden lg:block">
+          <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
+        </div>
         <div className="flex-1">
           <GCScoreSummary 
             scoreBreakdown={score} 
             userName={formData.candidateFoundation.fullName} 
             onContinue={() => onComplete(formData)} 
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Show section transition
+  if (showSectionTransition) {
+    return (
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="hidden lg:block">
+          <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
+        </div>
+        <div className="flex-1">
+          <SectionTransition
+            fromSection={transitionFromSection}
+            toSection={transitionToSection}
+            completedSections={getCompletedSectionsCount() + 1}
+            totalSections={10}
+            onContinue={handleTransitionContinue}
           />
         </div>
       </div>
@@ -352,11 +419,33 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
       case 'commitment':
         return (
           <div className="space-y-6">
-            <div className="p-6 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+            <motion.div 
+              className="p-6 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               <p className="text-lg font-medium text-foreground mb-2">"I commit to actively working on my Growth Charter and taking ownership of my career progression."</p>
               <p className="text-sm text-muted-foreground">This commitment helps us personalize your experience.</p>
-            </div>
+            </motion.div>
             <BooleanToggle label="Are you ready to commit?" value={formData.commitmentStatement.isCommitted} onChange={v => updateCommitment('isCommitted', v)} />
+          </div>
+        );
+
+      case 'work-identity':
+        return (
+          <div className="space-y-6">
+            <TextInput label="How do you want to be known professionally?" value={formData.workIdentity.professionalIdentity} onChange={v => updateWorkIdentity('professionalIdentity', v)} placeholder='e.g., "Problem solver", "Growth hacker", "People-first leader"' />
+            <MultiSelectChips label="Personal Brand Attributes" maxSelections={5} options={[
+              { value: 'curious', label: 'Curious' },
+              { value: 'impact-driven', label: 'Impact-driven' },
+              { value: 'creative', label: 'Creative' },
+              { value: 'analytical', label: 'Analytical' },
+              { value: 'ethical', label: 'Ethical' },
+              { value: 'fast-learner', label: 'Fast Learner' },
+              { value: 'builder', label: 'Builder' },
+              { value: 'challenger', label: 'Challenger' },
+              { value: 'community', label: 'Community-oriented' },
+            ]} selected={formData.workIdentity.personalBrandAttributes} onChange={v => updateWorkIdentity('personalBrandAttributes', v)} />
           </div>
         );
 
@@ -488,9 +577,21 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
   };
 
   return (
-    <div className="flex gap-8">
-      <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
+    <div className="flex flex-col lg:flex-row gap-8">
+      {/* Sidebar Progress */}
+      <div className="hidden lg:block">
+        <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
+      </div>
+
+      {/* Main Content */}
       <div className="flex-1">
+        {/* Top Icon Progress (Mobile & Desktop) */}
+        <IconStepProgress 
+          currentStepIndex={currentStep} 
+          totalSteps={FORM_STEPS.length} 
+          sectionName={step.section}
+        />
+
         <AnimatePresence mode="wait">
           <FormStepWrapper
             key={step.id}
@@ -501,6 +602,7 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
             onBack={prevStep}
             canProceed={canProceed()}
             isLastStep={currentStep === FORM_STEPS.length - 2}
+            isExtracted={step.id === 'resume-review' && !!extractedData}
           >
             {renderStepContent()}
           </FormStepWrapper>
