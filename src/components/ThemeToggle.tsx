@@ -1,28 +1,18 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 const ThemeToggle = () => {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   const cycleTheme = () => {
-    const themes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    // Only toggle between light and dark
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   const getIcon = () => {
-    switch (theme) {
-      case 'light':
-        return Sun;
-      case 'dark':
-        return Moon;
-      case 'system':
-        return Monitor;
-      default:
-        return Sun;
-    }
+    // Only show sun or moon
+    return theme === 'dark' ? Moon : Sun;
   };
 
   const Icon = getIcon();
