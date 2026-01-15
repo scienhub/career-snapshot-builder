@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CompleteFormData, ExtractedResumeData, FORM_STEPS, getDefaultFormData } from '@/types/onboarding';
 import { calculateGCScore } from '@/utils/gcScoreCalculator';
 import FormStepWrapper from './form-steps/FormStepWrapper';
-import StepProgress from './form-steps/StepProgress';
+import SidebarProgress from './form-steps/SidebarProgress';
 import IconStepProgress from './form-steps/IconStepProgress';
 import SectionTransition from './form-steps/SectionTransition';
 import GCScoreSummary from './form-steps/GCScoreSummary';
@@ -186,10 +186,8 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
   if (step.id === 'score-summary') {
     const score = calculateGCScore(formData);
     return (
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="hidden lg:block">
-          <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
-        </div>
+      <div className="flex gap-8">
+        <SidebarProgress currentStepIndex={currentStep} completedSteps={new Set()} />
         <div className="flex-1">
           <GCScoreSummary 
             scoreBreakdown={score} 
@@ -204,10 +202,8 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
   // Show section transition
   if (showSectionTransition) {
     return (
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="hidden lg:block">
-          <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
-        </div>
+      <div className="flex gap-8">
+        <SidebarProgress currentStepIndex={currentStep} completedSteps={new Set()} />
         <div className="flex-1">
           <SectionTransition
             fromSection={transitionFromSection}
@@ -577,11 +573,9 @@ const MultiStepVerification = ({ extractedData, onComplete, onBack }: MultiStepV
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
+    <div className="flex gap-8">
       {/* Sidebar Progress */}
-      <div className="hidden lg:block">
-        <StepProgress currentStepIndex={currentStep} completedSteps={new Set()} />
-      </div>
+      <SidebarProgress currentStepIndex={currentStep} completedSteps={new Set()} />
 
       {/* Main Content */}
       <div className="flex-1">
