@@ -64,17 +64,25 @@ const Dashboard = ({ userData }: DashboardProps) => {
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className="space-y-6"
               >
+                {/* GC Score Card */}
                 <GCScoreCard score={defaultData.gcScore} />
+                
+                {/* Momentum Strip */}
                 <MomentumStrip />
+                
+                {/* Next Action Card */}
                 <NextActionCard userName={defaultData.name} />
+                
+                {/* Progress Map */}
                 <ProgressMap />
                 
-                {/* Two Column Layout for Insights & Community */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <MicroInsights />
-                  <CommunityHighlights />
-                </div>
+                {/* Micro Insights - Full Width Story Style */}
+                <MicroInsights />
                 
+                {/* Community Highlights */}
+                <CommunityHighlights />
+                
+                {/* Proof Snapshot */}
                 <ProofSnapshot />
               </motion.div>
             )}
@@ -88,11 +96,23 @@ const Dashboard = ({ userData }: DashboardProps) => {
                 className="flex items-center justify-center min-h-[60vh]"
               >
                 <div className="text-center space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center">
-                    <span className="text-2xl text-primary font-bold capitalize">{activeTab.charAt(0)}</span>
-                  </div>
+                  <motion.div 
+                    className="w-20 h-20 mx-auto bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  >
+                    <span className="text-3xl text-primary font-bold capitalize">{activeTab.charAt(0)}</span>
+                  </motion.div>
                   <h2 className="text-2xl font-bold text-foreground capitalize">{activeTab}</h2>
                   <p className="text-muted-foreground">This section is coming soon</p>
+                  <motion.div
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium"
+                  >
+                    <span className="w-2 h-2 bg-primary rounded-full" />
+                    In Development
+                  </motion.div>
                 </div>
               </motion.div>
             )}
