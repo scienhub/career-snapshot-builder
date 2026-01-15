@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { GCScoreBreakdown } from '@/types/onboarding';
 import { DashboardNavbar } from '@/components/dashboard/DashboardNavbar';
 import { GCScoreCard } from '@/components/dashboard/GCScoreCard';
@@ -8,6 +7,8 @@ import { MomentumStrip } from '@/components/dashboard/MomentumStrip';
 import { NextActionCard } from '@/components/dashboard/NextActionCard';
 import { ProgressMap } from '@/components/dashboard/ProgressMap';
 import { ProofSnapshot } from '@/components/dashboard/ProofSnapshot';
+import { MicroInsights } from '@/components/dashboard/MicroInsights';
+import { CommunityHighlights } from '@/components/dashboard/CommunityHighlights';
 import { BottomDock } from '@/components/dashboard/BottomDock';
 
 interface DashboardProps {
@@ -18,11 +19,9 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ userData }: DashboardProps) => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [activeDockItem, setActiveDockItem] = useState('home');
   
-  // Default mock data if no userData provided
   const defaultData = {
     name: userData?.name || 'Professional',
     gcScore: userData?.gcScore || {
@@ -46,17 +45,15 @@ const Dashboard = ({ userData }: DashboardProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Top Navbar - Strategic Layer */}
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex flex-col">
       <DashboardNavbar 
         activeTab={activeTab} 
         onTabChange={setActiveTab}
         userName={defaultData.name}
       />
 
-      {/* Main Dashboard Canvas */}
-      <main className="flex-1 overflow-auto pb-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 overflow-auto pb-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (
               <motion.div
@@ -65,21 +62,19 @@ const Dashboard = ({ userData }: DashboardProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                className="space-y-8"
+                className="space-y-6"
               >
-                {/* Section 1: Career Signal (GC Score) */}
                 <GCScoreCard score={defaultData.gcScore} />
-
-                {/* Section 2: Momentum Strip */}
                 <MomentumStrip />
-
-                {/* Section 3: The One Next Action */}
                 <NextActionCard userName={defaultData.name} />
-
-                {/* Section 4: Progress Map */}
                 <ProgressMap />
-
-                {/* Section 5: Proof & Contribution Snapshot */}
+                
+                {/* Two Column Layout for Insights & Community */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <MicroInsights />
+                  <CommunityHighlights />
+                </div>
+                
                 <ProofSnapshot />
               </motion.div>
             )}
@@ -90,14 +85,13 @@ const Dashboard = ({ userData }: DashboardProps) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className="flex items-center justify-center min-h-[60vh]"
               >
                 <div className="text-center space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-accent rounded-2xl flex items-center justify-center">
-                    <span className="text-2xl text-primary font-semibold capitalize">{activeTab.charAt(0)}</span>
+                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center">
+                    <span className="text-2xl text-primary font-bold capitalize">{activeTab.charAt(0)}</span>
                   </div>
-                  <h2 className="text-2xl font-semibold text-foreground capitalize">{activeTab}</h2>
+                  <h2 className="text-2xl font-bold text-foreground capitalize">{activeTab}</h2>
                   <p className="text-muted-foreground">This section is coming soon</p>
                 </div>
               </motion.div>
@@ -106,7 +100,6 @@ const Dashboard = ({ userData }: DashboardProps) => {
         </div>
       </main>
 
-      {/* Bottom Dock - Daily Habit Engine */}
       <BottomDock 
         activeItem={activeDockItem} 
         onItemClick={handleDockItemClick} 
