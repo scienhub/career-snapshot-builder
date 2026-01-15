@@ -126,24 +126,39 @@ const ConfirmationSuccess = ({ userName, careerStage }: ConfirmationSuccessProps
           </div>
 
           <div className="space-y-3">
-            {[
-              { icon: Shield, text: "Profile verified and secured", color: "success", delay: 0.4 },
-              { icon: Sparkles, text: "AI analysis complete", color: "primary", delay: 0.5 },
-              { icon: Target, text: "Ready to set career goals", color: "warning", delay: 0.6 },
-            ].map((item, index) => (
-              <motion.div 
-                key={index}
-                className="flex items-center gap-3 text-sm"
-                initial={{ opacity: 0, x: -20 }}
-                animate={showContent ? { opacity: 1, x: 0 } : {}}
-                transition={{ delay: item.delay }}
-              >
-                <div className={`w-8 h-8 rounded-lg bg-${item.color}/10 flex items-center justify-center`}>
-                  <item.icon className={`w-4 h-4 text-${item.color}`} />
-                </div>
-                <span className="text-foreground">{item.text}</span>
-              </motion.div>
-            ))}
+            <motion.div 
+              className="flex items-center gap-3 text-sm"
+              initial={{ opacity: 0, x: -20 }}
+              animate={showContent ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-success" />
+              </div>
+              <span className="text-foreground">Profile verified and secured</span>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-3 text-sm"
+              initial={{ opacity: 0, x: -20 }}
+              animate={showContent ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-foreground">AI analysis complete</span>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-3 text-sm"
+              initial={{ opacity: 0, x: -20 }}
+              animate={showContent ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.6 }}
+            >
+              <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
+                <Target className="w-4 h-4 text-warning" />
+              </div>
+              <span className="text-foreground">Ready to set career goals</span>
+            </motion.div>
           </div>
         </motion.div>
 

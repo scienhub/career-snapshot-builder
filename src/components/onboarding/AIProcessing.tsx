@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { FileText, Brain, Sparkles, Map, Target } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 interface AIProcessingProps {
@@ -7,11 +8,11 @@ interface AIProcessingProps {
 }
 
 const processingMessages = [
-  { text: "Reading your resume...", icon: "📄" },
-  { text: "Understanding your experience...", icon: "🧠" },
-  { text: "Identifying your skills...", icon: "✨" },
-  { text: "Mapping your career journey...", icon: "🗺️" },
-  { text: "Preparing your profile...", icon: "🎯" },
+  { text: "Reading your resume...", Icon: FileText },
+  { text: "Understanding your experience...", Icon: Brain },
+  { text: "Identifying your skills...", Icon: Sparkles },
+  { text: "Mapping your career journey...", Icon: Map },
+  { text: "Preparing your profile...", Icon: Target },
 ];
 
 const AIProcessing = ({ onComplete }: AIProcessingProps) => {
@@ -45,6 +46,8 @@ const AIProcessing = ({ onComplete }: AIProcessingProps) => {
       clearInterval(progressInterval);
     };
   }, [onComplete]);
+
+  const CurrentIcon = processingMessages[currentMessageIndex].Icon;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -102,17 +105,24 @@ const AIProcessing = ({ onComplete }: AIProcessingProps) => {
 
       {/* Processing Message */}
       <div className="text-center mb-10 h-12">
-        <motion.p 
-          className="text-xl text-foreground"
+        <motion.div 
+          className="flex items-center justify-center gap-3 text-xl text-foreground"
           key={currentMessageIndex}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
         >
-          <span className="mr-3">{processingMessages[currentMessageIndex].icon}</span>
-          {processingMessages[currentMessageIndex].text}
-        </motion.p>
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"
+          >
+            <CurrentIcon className="w-5 h-5 text-primary" />
+          </motion.div>
+          <span>{processingMessages[currentMessageIndex].text}</span>
+        </motion.div>
       </div>
 
       {/* Skeleton Progress */}
