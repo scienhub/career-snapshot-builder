@@ -4,14 +4,15 @@ import { useTheme } from '@/hooks/useTheme';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import ResumeUpload from '@/components/onboarding/ResumeUpload';
 import AIProcessing from '@/components/onboarding/AIProcessing';
-import CorrectionVerification from '@/components/onboarding/CorrectionVerification';
+import MultiStepVerification from '@/components/onboarding/MultiStepVerification';
 import ConfirmationSuccess from '@/components/onboarding/ConfirmationSuccess';
 import ManualEntryForm from '@/components/onboarding/ManualEntryForm';
 import ThemePreference from '@/components/onboarding/ThemePreference';
+import { ExtractedResumeData } from '@/types/onboarding';
 
-type OnboardingStep = 'theme' | 'upload' | 'processing' | 'verification' | 'manual' | 'success';
+type OnboardingStep = 'theme' | 'upload' | 'processing' | 'verification' | 'manual' | 'success' | 'dashboard';
 
-const mockExtractedData = {
+const mockExtractedData: ExtractedResumeData = {
   fullName: 'Sarah Johnson',
   email: 'sarah.johnson@example.com',
   phone: '+1 555 123 4567',
@@ -36,11 +37,12 @@ const Index = () => {
       manual: 0,
       verification: 1,
       success: 2,
+      dashboard: 3,
     };
     return stepMap[step];
   };
 
-  const handleThemeSelect = useCallback((theme: 'light' | 'dark' | 'system') => {
+  const handleThemeSelect = useCallback((theme: 'light' | 'dark') => {
     setTheme(theme);
     setHasPreference(true);
     setCurrentStep('upload');
@@ -55,9 +57,9 @@ const Index = () => {
     setCurrentStep('verification');
   }, []);
 
-  const handleConfirm = useCallback((data: any, careerStage: string, status: string) => {
-    console.log('Confirmed data:', { data, careerStage, status });
-    setConfirmedData({ name: data.fullName, stage: careerStage });
+  const handleVerificationComplete = useCallback((data: any) => {
+    console.log('Verification complete:', data);
+    setConfirmedData({ name: data.candidateFoundation.fullName, stage: data.candidateFoundation.careerStage });
     setCurrentStep('success');
   }, []);
 
@@ -75,7 +77,7 @@ const Index = () => {
     setCurrentStep('upload');
   }, []);
 
-  const stepLabels = ['Upload Resume', 'Verify Details', 'Complete'];
+  const stepLabels = ['Upload Resume', 'Complete Profile', 'Done'];
 
   // Show theme preference screen first
   if (currentStep === 'theme') {
@@ -107,9 +109,9 @@ const Index = () => {
         return <AIProcessing onComplete={handleProcessingComplete} />;
       case 'verification':
         return (
-          <CorrectionVerification
+          <MultiStepVerification
             extractedData={mockExtractedData}
-            onConfirm={handleConfirm}
+            onComplete={handleVerificationComplete}
             onBack={handleBackToUpload}
           />
         );
